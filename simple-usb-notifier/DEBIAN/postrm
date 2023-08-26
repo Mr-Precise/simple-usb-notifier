@@ -1,0 +1,6 @@
+#!/bin/sh
+
+set -e
+
+udevadm control --reload-rules >/dev/null || true
+systemctl restart udev >/dev/null || true

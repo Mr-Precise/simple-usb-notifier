@@ -1,0 +1,8 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = configure ]; then
+    udevadm control --reload-rules >/dev/null || true
+    systemctl restart udev >/dev/null || true
+fi

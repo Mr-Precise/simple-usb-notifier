@@ -1,0 +1,10 @@
+Package: simple-usb-notifier
+Version: 1.0
+Architecture: all
+Maintainer: Precise
+Installed-Size: 22
+Depends: systemd, udev, lsb-base (>= 3.0-6), libnotify-bin
+Section: utils
+Priority: optional
+Homepage: https://github.com/Mr-Precise/simple-usb-notifier
+Description: Display notifications (using notify-send) about connected USB devices
