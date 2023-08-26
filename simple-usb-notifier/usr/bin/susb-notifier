@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# current user
+CURRENT_USER=$(who | awk 'NR==1{print $1}')
+
+# Function to get parameter value from udevadm info
+# Can be customized :)
+get_parameter() {
+    udevadm info --name="$1" --query=property | grep -E "ID_MODEL_FROM_DATABASE=|ID_VENDOR_FROM_DATABASE=" | awk -F"=" '{print $2}'
+#   udevadm info --name="$1" --query=property | grep -E "ID_MODEL=|ID_VENDOR=|ID_SERIAL_SHORT=" | awk -F"=" '{print $2}'
+}
+
+# Getting device information
+vendor=$(get_parameter "$1" "ID_VENDOR_FROM_DATABASE=")
+# model=$(get_parameter "$1" "ID_MODEL_FROM_DATABASE=")
+# serial=$(get_parameter "$1" "ID_SERIAL_SHORT=")
+
+# Forming device name with "manufacturer"/"model"
+if [ -z "$vendor" ]; then
+  device_name="Unknown USB device"
+else
+    # device_name="$vendor $model"
+    device_name="$vendor"
+fi
+
+# Variable to store the previous device (double trigger fix)
+previous_device=""
+
+# Check if a device is connected or disconnected
+# Start notify-send with sudo from current user
+if [ "$2" = "add" ]; then
+    if [ "$device_name" != "$previous_device" ]; then
+        previous_device="$device_name"
+        sudo -u $CURRENT_USER DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u $CURRENT_USER)/bus notify-send -i "hwinfo" -c "device.added" -a "USB Device notify" -u normal "USB device connected" "$device_name"
+    fi
+elif [ "$2" = "remove" ]; then
+    sudo -u $CURRENT_USER DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u $CURRENT_USER)/bus notify-send -i "hwinfo" -c "device.removed" -a "USB Device notify" -u normal "USB device disconnected" "Disconnected"
+fi
